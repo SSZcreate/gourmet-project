@@ -22,3 +22,5 @@ services:
     environment:
       # ホットリロードが効くようにするための設定
       - WATCHPACK_POLLING=true
+      # API環境変数をコンテナに直接渡す（実際のAPIキーに置き換えてください）
+      - NEXT_PUBLIC_HOTPEPPER_API_KEY=4d1c6ed660e6ef2a

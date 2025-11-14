@@ -7,45 +7,42 @@ export async function GET(request: NextRequest) {
     const lng = searchParams.get('lng');
     const range = searchParams.get('range');
 
+    console.log('=== API Route 開始 ===');
+    console.log('受信パラメータ:', { lat, lng, range });
+
     // パラメータのバリデーション
     if (!lat || !lng || !range) {
+      console.error('パラメータ不足');
       return NextResponse.json(
         { error: '必須パラメータが不足しています' },
         { status: 400 }
       );
     }
 
-    // ぐるなびAPIキーを環境変数から取得
-    const apiKey = process.env.NEXT_PUBLIC_GNAVI_API_KEY;
+    // ホットペッパーAPIキーを環境変数から取得
+    const apiKey = process.env.NEXT_PUBLIC_HOTPEPPER_API_KEY;
+    console.log('APIキー取得:', apiKey ? `存在 (長さ: ${apiKey.length})` : '未設定');
     
     if (!apiKey) {
+      console.error('APIキーが環境変数に設定されていません');
       return NextResponse.json(
         { error: 'APIキーが設定されていません' },
         { status: 500 }
       );
     }
 
-    // rangeの値をぐるなびAPIの形式に変換（メートル単位）
-    const rangeMap: { [key: string]: string } = {
-      '1': '300',   // 300m
-      '2': '500',   // 500m
-      '3': '1000',  // 1km
-      '4': '2000',  // 2km
-      '5': '3000',  // 3km
-    };
-    const rangeInMeters = rangeMap[range] || '1000';
+    // ホットペッパーAPIエンドポイント
+    const apiUrl = new URL('https://webservice.recruit.co.jp/hotpepper/gourmet/v1/');
+    apiUrl.searchParams.append('key', apiKey);
+    apiUrl.searchParams.append('lat', lat);
+    apiUrl.searchParams.append('lng', lng);
+    apiUrl.searchParams.append('range', range);
+    apiUrl.searchParams.append('count', '100'); // 最大100件取得
+    apiUrl.searchParams.append('format', 'json');
 
-    // ぐるなびAPIエンドポイント
-    const apiUrl = new URL('https://api.gnavi.co.jp/RestSearchAPI/v3/');
-    apiUrl.searchParams.append('keyid', apiKey);
-    apiUrl.searchParams.append('latitude', lat);
-    apiUrl.searchParams.append('longitude', lng);
-    apiUrl.searchParams.append('range', rangeInMeters);
-    apiUrl.searchParams.append('hit_per_page', '100'); // 最大100件取得
+    console.log('ホットペッパーAPI呼び出し:', apiUrl.toString().replace(apiKey, '***'));
 
-    console.log('ぐるなびAPI呼び出し:', apiUrl.toString());
-
-    // ぐるなびAPIを呼び出し
+    // ホットペッパーAPIを呼び出し
     const response = await fetch(apiUrl.toString(), {
       method: 'GET',
       headers: {
@@ -53,49 +50,32 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    console.log('ホットペッパーAPIレスポンスステータス:', response.status);
+
     if (!response.ok) {
-      throw new Error(`ぐるなびAPI呼び出しエラー: ${response.status}`);
+      const errorText = await response.text();
+      console.error('ホットペッパーAPIエラー:', errorText);
+      throw new Error(`ホットペッパーAPI呼び出しエラー: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('ホットペッパーAPIレスポンス:', JSON.stringify(data).substring(0, 200) + '...');
 
-    // データの整形（ホットペッパーAPIと同じ形式に変換）
-    const formattedData = {
-      results: {
-        shop: data.rest?.map((restaurant: any) => ({
-          id: restaurant.id,
-          name: restaurant.name,
-          logo_image: restaurant.image_url?.shop_image1 || 'https://placehold.co/400x400/orange/white?text=No+Image',
-          photo: {
-            pc: {
-              l: restaurant.image_url?.shop_image1 || 'https://placehold.co/600x400/orange/white?text=No+Image',
-            }
-          },
-          access: restaurant.access?.line || restaurant.access?.station || '情報なし',
-          address: restaurant.address || '住所情報なし',
-          open: restaurant.opentime || '営業時間情報なし',
-          catch: restaurant.pr?.pr_short || restaurant.category || '',
-          genre: {
-            name: restaurant.category || '未分類'
-          },
-          budget: {
-            name: restaurant.budget ? `${restaurant.budget}円` : '予算情報なし'
-          },
-          urls: {
-            pc: restaurant.url || 'https://gnavi.co.jp/'
-          }
-        })) || []
-      }
-    };
+    // ホットペッパーAPIのレスポンスはすでにアプリで使用する形式と同じ
+    const shops = data.results?.shop || [];
+    console.log(`ホットペッパーAPI結果: ${shops.length}件`);
 
-    console.log(`ぐるなびAPI結果: ${formattedData.results.shop.length}件`);
-
-    return NextResponse.json(formattedData);
+    return NextResponse.json(data);
 
   } catch (error) {
-    console.error('API Route エラー:', error);
+    console.error('=== API Route エラー ===');
+    console.error('エラー詳細:', error);
+    console.error('エラーメッセージ:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: 'データの取得に失敗しました' },
+      { 
+        error: 'データの取得に失敗しました',
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }

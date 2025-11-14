@@ -63,16 +63,21 @@ export default function Home() {
     setSearchParams({ lat, lng, range });
 
     try {
-      // ぐるなびAPI Routeを呼び出し
+      // ホットペッパーAPI Routeを呼び出し
       const response = await fetch(
         `/api/search?lat=${lat}&lng=${lng}&range=${range}`
       );
 
+      console.log('APIレスポンスステータス:', response.status);
+
       if (!response.ok) {
-        throw new Error('API呼び出しに失敗しました');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('APIエラー詳細:', errorData);
+        throw new Error(errorData.error || `API呼び出しに失敗しました (ステータス: ${response.status})`);
       }
 
       const data = await response.json();
+      console.log('取得したデータ:', data);
       
       if (data.error) {
         throw new Error(data.error);

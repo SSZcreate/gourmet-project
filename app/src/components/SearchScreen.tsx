@@ -21,9 +21,12 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLat(position.coords.latitude);
-        setLng(position.coords.longitude);
-        setLocationStatus('位置情報を取得しました！');
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        console.log('✅ 現在地取得成功:', { latitude, longitude });
+        setLat(latitude);
+        setLng(longitude);
+        setLocationStatus(`位置情報を取得しました！(緯度: ${latitude.toFixed(4)}, 経度: ${longitude.toFixed(4)})`);
       },
       (error) => {
         let errorMessage = '位置情報の取得に失敗しました。';
@@ -32,6 +35,8 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
           case 2: errorMessage = 'デバイスの位置情報が利用できません。'; break;
           case 3: errorMessage = 'タイムアウトしました。'; break;
         }
+        console.log('⚠️ 現在地取得失敗:', errorMessage, 'エラーコード:', error.code);
+        console.log('📍 フォールバック: 東京駅を設定 (35.681236, 139.767125)');
         setLocationStatus(`${errorMessage} (デモ用に東京駅周辺を設定します)`);
         setLat(35.681236);
         setLng(139.767125);
@@ -43,7 +48,10 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (lat && lng) {
+      console.log('🔍 検索開始:', { lat, lng, range });
       onSearch(lat, lng, range);
+    } else {
+      console.error('❌ 位置情報が設定されていません');
     }
   };
 
