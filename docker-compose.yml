@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # サービス名を 'next-app' とします
+  next-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # ホスト側の 'app' ディレクトリとコンテナ内の '/app' を同期します
+    volumes:
+      - ./app:/app
+      # パフォーマンスと環境差異防止のため、node_modules と .next はホストと共有しません
+      - /app/node_modules
+      - /app/.next
+    # ポートフォワーディング (ホスト:コンテナ)
+    ports:
+      - "3000:3000"
+    # コンテナ起動時に実行するコマンド
+    # 依存関係をインストールし、開発サーバーを起動します
+    command: sh -c "npm install && npm run dev"
+    # 開発サーバーが終了しないように設定
+    tty: true
+    stdin_open: true
+    environment:
+      # ホットリロードが効くようにするための設定
+      - WATCHPACK_POLLING=true
