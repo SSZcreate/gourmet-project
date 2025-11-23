@@ -1,5 +1,5 @@
 /**
- * グルメ検索アプリケーション - メインページ
+ * ぐるめっと - メインページ
  * 
  * 【役割】
  * - 3つの画面(検索/結果/詳細)の状態管理と画面遷移を制御
@@ -21,7 +21,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, ChevronLeft, AlertCircle } from 'lucide-react';
+import { UtensilsCrossed, ChevronLeft, AlertCircle } from 'lucide-react';
 import SearchScreen from '@/components/SearchScreen';
 import ResultsScreen from '@/components/ResultsScreen';
 import DetailScreen from '@/components/DetailScreen';
@@ -148,8 +148,8 @@ export default function Home() {
             </button>
           )}
           <h1 className="text-lg font-bold flex items-center">
-            <Search className="mr-2" size={20} />
-            グルメリサーチ
+            <UtensilsCrossed className="mr-2" size={20} />
+            ぐるめっと
           </h1>
         </div>
       </header>
