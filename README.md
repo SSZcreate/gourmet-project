@@ -92,13 +92,6 @@ docker-compose up -d
 
 http://localhost:3000
 
-## 📖 詳細ドキュメント
-
-- **[環境構築手順](./HowtoCreateEnv.md)**: Docker環境のセットアップ方法
-- **[アプリ開発手順](./HowtoCreateApp.md)**: コンポーネント実装の詳細
-- **[デプロイ手順](./HowToDeploy.md)**: Vercelへのデプロイ方法
-- **[再起動手順](./HowToRestart.md)**: 開発環境の再起動方法
-
 ## 🔑 ホットペッパーAPIキーの取得
 
 1. [リクルートWebサービス](https://webservice.recruit.co.jp/)にアクセス
