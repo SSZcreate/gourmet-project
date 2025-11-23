@@ -21,7 +21,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, ChevronLeft, AlertCircle } from 'lucide-react';
+import { UtensilsCrossed, ChevronLeft, AlertCircle } from 'lucide-react';
 import SearchScreen from '@/components/SearchScreen';
 import ResultsScreen from '@/components/ResultsScreen';
 import DetailScreen from '@/components/DetailScreen';
@@ -148,7 +148,7 @@ export default function Home() {
             </button>
           )}
           <h1 className="text-lg font-bold flex items-center">
-            <Search className="mr-2" size={20} />
+            <UtensilsCrossed className="mr-2" size={20} />
             ぐるめっと
           </h1>
         </div>
