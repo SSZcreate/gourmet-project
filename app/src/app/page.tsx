@@ -1,5 +1,5 @@
 /**
- * グルメ検索アプリケーション - メインページ
+ * ぐるめっと - メインページ
  * 
  * 【役割】
  * - 3つの画面(検索/結果/詳細)の状態管理と画面遷移を制御
@@ -149,7 +149,7 @@ export default function Home() {
           )}
           <h1 className="text-lg font-bold flex items-center">
             <Search className="mr-2" size={20} />
-            グルメリサーチ
+            ぐるめっと
           </h1>
         </div>
       </header>
