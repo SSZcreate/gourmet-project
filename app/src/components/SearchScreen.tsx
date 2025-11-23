@@ -1,0 +1,145 @@
+/**
+ * 検索条件入力画面コンポーネント
+ * 
+ * 【役割】
+ * - 位置情報の取得と表示
+ * - 検索範囲(300m〜3000m)の選択UI提供
+ * - 検索条件の親コンポーネントへの送信
+ * 
+ * 【動作】
+ * 1. 「現在地を取得」ボタン押下
+ *    → Geolocation APIで現在地(緯度経度)を取得
+ *    → 取得成功/失敗をユーザーに表示
+ * 2. 検索範囲を選択(デフォルト: 1km)
+ * 3. 「検索」ボタン押下
+ *    → 親コンポーネントのonSearch()を呼び出し
+ *    → 検索結果画面へ遷移
+ * 
+ * 【Props】
+ * @param onSearch - 検索実行時のコールバック関数
+ * @param loading - 検索中の状態(ローディング表示制御用)
+ */
+import React, { useState } from 'react';
+import { MapPin, Search, Loader2 } from 'lucide-react';
+
+type SearchScreenProps = {
+  onSearch: (lat: number, lng: number, range: string) => void;
+  loading: boolean;
+};
+
+export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [range, setRange] = useState('3');
+  const [locationStatus, setLocationStatus] = useState<string>('');
+
+  const handleGetLocation = () => {
+    setLocationStatus('取得中...');
+    if (!navigator.geolocation) {
+      setLocationStatus('お使いのブラウザは位置情報に対応していません。');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        console.log('✅ 現在地取得成功:', { latitude, longitude });
+        setLat(latitude);
+        setLng(longitude);
+        setLocationStatus(`位置情報を取得しました！(緯度: ${latitude.toFixed(4)}, 経度: ${longitude.toFixed(4)})`);
+      },
+      (error) => {
+        let errorMessage = '位置情報の取得に失敗しました。';
+        switch(error.code) {
+          case 1: errorMessage = '位置情報の利用が許可されていません。'; break;
+          case 2: errorMessage = 'デバイスの位置情報が利用できません。'; break;
+          case 3: errorMessage = 'タイムアウトしました。'; break;
+        }
+        console.log('⚠️ 現在地取得失敗:', errorMessage, 'エラーコード:', error.code);
+        console.log('📍 フォールバック: 東京駅を設定 (35.681236, 139.767125)');
+        setLocationStatus(`${errorMessage} (デモ用に東京駅周辺を設定します)`);
+        setLat(35.681236);
+        setLng(139.767125);
+      },
+      { timeout: 10000 }
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (lat && lng) {
+      console.log('🔍 検索開始:', { lat, lng, range });
+      onSearch(lat, lng, range);
+    } else {
+      console.error('❌ 位置情報が設定されていません');
+    }
+  };
+
+  return (
+    <div className="animate-fade-in">
+      <div className="bg-white p-6 rounded-xl shadow-sm mb-6 text-center">
+        <h2 className="text-xl font-bold mb-2 text-gray-800">近くのお店を探す</h2>
+        <p className="text-gray-500 mb-6 text-sm">現在地から周辺のレストランを検索します</p>
+        
+        <button
+          type="button"
+          onClick={handleGetLocation}
+          className="w-full flex items-center justify-center bg-blue-50 text-blue-600 font-semibold py-4 px-6 rounded-xl border-2 border-blue-100 hover:bg-blue-100 transition duration-200 mb-2"
+        >
+          <MapPin className="mr-2" size={20} />
+          現在地を取得する
+        </button>
+        
+        {locationStatus && (
+          <p className={`text-sm mb-4 ${lat ? 'text-green-600' : 'text-orange-500'}`}>
+            {locationStatus}
+          </p>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} className={`bg-white p-6 rounded-xl shadow-sm transition-opacity duration-300 ${(!lat && !loading) ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="range">
+            検索範囲
+          </label>
+          <div className="relative">
+            <select
+              id="range"
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
+              className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:bg-white focus:border-red-500"
+            >
+              <option value="1">300m 以内</option>
+              <option value="2">500m 以内</option>
+              <option value="3">1000m 以内 (標準)</option>
+              <option value="4">2000m 以内</option>
+              <option value="5">3000m 以内</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!lat || loading}
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-md disabled:bg-gray-300 disabled:shadow-none transition duration-200 flex items-center justify-center"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin mr-2" size={20} />
+              検索中...
+            </>
+          ) : (
+            <>
+              <Search className="mr-2" size={20} />
+              この条件で検索
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  );
+}

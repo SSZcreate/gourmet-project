@@ -1,9 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# ドキュメントファイル（手順書）
-HowtoCreateEnv.md
-HowtoCreateApp.md
-HowToDeploy.md
+# ドキュメントファイル
+note
 
 # dependencies
 node_modules
