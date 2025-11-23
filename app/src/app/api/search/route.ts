@@ -1,3 +1,30 @@
+/**
+ * ホットペッパーグルメサーチAPI連携エンドポイント
+ * 
+ * 【役割】
+ * - クライアントからの検索リクエストを受け取る
+ * - ホットペッパーAPIへプロキシリクエストを送信
+ * - APIレスポンスをクライアントに返却
+ * 
+ * 【動作】
+ * 1. クエリパラメータ(lat, lng, range)を検証
+ * 2. 環境変数からホットペッパーAPIキーを取得
+ * 3. ホットペッパーAPIにGETリクエスト送信:
+ *    - エンドポイント: https://webservice.recruit.co.jp/hotpepper/gourmet/v1/
+ *    - パラメータ: key, lat, lng, range, count(100), format(json)
+ * 4. APIレスポンスをJSON形式で返却
+ * 5. エラー時は適切なステータスコードとエラーメッセージを返却
+ * 
+ * 【エンドポイント】
+ * GET /api/search?lat={緯度}&lng={経度}&range={検索範囲}
+ * 
+ * 【レスポンス】
+ * 成功時: ホットペッパーAPIのレスポンスをそのまま返却
+ * エラー時: { error: "エラーメッセージ" }
+ * 
+ * 【環境変数】
+ * NEXT_PUBLIC_HOTPEPPER_API_KEY - ホットペッパーAPIキー(必須)
+ */
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

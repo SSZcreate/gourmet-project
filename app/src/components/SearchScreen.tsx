@@ -1,3 +1,24 @@
+/**
+ * 検索条件入力画面コンポーネント
+ * 
+ * 【役割】
+ * - 位置情報の取得と表示
+ * - 検索範囲(300m〜3000m)の選択UI提供
+ * - 検索条件の親コンポーネントへの送信
+ * 
+ * 【動作】
+ * 1. 「現在地を取得」ボタン押下
+ *    → Geolocation APIで現在地(緯度経度)を取得
+ *    → 取得成功/失敗をユーザーに表示
+ * 2. 検索範囲を選択(デフォルト: 1km)
+ * 3. 「検索」ボタン押下
+ *    → 親コンポーネントのonSearch()を呼び出し
+ *    → 検索結果画面へ遷移
+ * 
+ * 【Props】
+ * @param onSearch - 検索実行時のコールバック関数
+ * @param loading - 検索中の状態(ローディング表示制御用)
+ */
 import React, { useState } from 'react';
 import { MapPin, Search, Loader2 } from 'lucide-react';
 
