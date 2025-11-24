@@ -41,13 +41,35 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
         console.log('✅ 現在地取得成功:', { latitude, longitude });
         setLat(latitude);
         setLng(longitude);
-        setLocationStatus(`位置情報を取得しました！(緯度: ${latitude.toFixed(4)}, 経度: ${longitude.toFixed(4)})`);
+        
+        // Reverse Geocoding APIで地名を取得
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&accept-language=ja`
+          );
+          const data = await response.json();
+          
+          // 地名を取得（市区町村レベル）
+          const address = data.address;
+          const locationName = 
+            address.city || 
+            address.town || 
+            address.village || 
+            address.suburb || 
+            address.state || 
+            '不明な場所';
+          
+          setLocationStatus(`位置情報を取得しました！(${locationName})`);
+        } catch (error) {
+          console.error('地名取得エラー:', error);
+          setLocationStatus(`位置情報を取得しました！(緯度: ${latitude.toFixed(4)}, 経度: ${longitude.toFixed(4)})`);
+        }
       },
       (error) => {
         let errorMessage = '位置情報の取得に失敗しました。';

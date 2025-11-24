@@ -74,6 +74,7 @@ export default function Home() {
   const [results, setResults] = useState<any[]>([]);
   const [selectedShop, setSelectedShop] = useState<any>(null);
   const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState<'distance' | 'price'>('distance');
   const RESULTS_PER_PAGE = 10;
 
   // 検索実行処理
@@ -172,6 +173,8 @@ export default function Home() {
             resultsPerPage={RESULTS_PER_PAGE}
             onShowDetail={handleShowDetail}
             searchParams={searchParams}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
           />
         )}
 
