@@ -127,7 +127,7 @@ export default function ResultsScreen({
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            値段順
+            安い順
           </button>
         </div>
       </div>
